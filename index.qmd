@@ -12,6 +12,8 @@ about:
       href: posts.qmd
 ---
 
+***Code by Cody***.
+
 ::: {.callout-warning}
-Website under construction.
+Website under construction. Apologies for the theme.
 :::

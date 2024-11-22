@@ -36,7 +36,7 @@ website:
 # theme
 format:
   html:
-    theme: solar # TODO: update to pulse (dark) after https://github.com/quarto-dev/quarto-cli/issues/6741
+    theme: sketchy # TODO: update to pulse (dark) after https://github.com/quarto-dev/quarto-cli/issues/6741
 
 # resources
 resources:
