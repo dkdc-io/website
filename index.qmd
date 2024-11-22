@@ -1,0 +1,17 @@
+---
+title: "dkdc.io"
+about:
+  template: jolla
+  image: logo.png
+  links:
+    - icon: github
+      text: github
+      href: https://github.com/dkdc-io
+    - icon: twitter
+      text: posts
+      href: posts.qmd
+---
+
+::: {.callout-warning}
+Website under construction.
+:::

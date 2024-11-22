@@ -1,0 +1,43 @@
+project:
+  type: website
+
+# website
+website:
+  # basics
+  title: "dkdc.io"
+  site-url: https://dkdc.io
+  description: "Code by Cody"
+  favicon: logo.png
+
+  # options
+  reader-mode: false
+  twitter-card: true
+  back-to-top-navigation: true
+  repo-url: https://github.com/dkdc/dkdc.io
+
+  # nav
+  navbar:
+    logo: logo.png
+    left:
+      - about.qmd
+    right:
+      - posts.qmd
+
+  # footer
+  page-footer:
+    border: false
+    center: "Code by Cody"
+    right:
+      - icon: github
+        href: https://github.com/dkdc-io
+      - icon: twitter
+        href: https://dkdc.io/posts
+
+# theme
+format:
+  html:
+    theme: solar # TODO: update to pulse (dark) after https://github.com/quarto-dev/quarto-cli/issues/6741
+
+# resources
+resources:
+  - CNAME
