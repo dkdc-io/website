@@ -39,7 +39,7 @@ Abstractions: vim is a lot nicer than punching cards. Working with high-level pr
 
 ## views on simplicity
 
-Python (and SQL) are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems.
+Python and SQL are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems.
 
 ## the Python tech stack
 
