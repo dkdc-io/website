@@ -2,8 +2,66 @@
 title: "about"
 ---
 
-## dkdc.io
+***Things built for people.***
 
-::: {.callout-warning}
-Website under construction.
-:::
+The dkdc-io organization on GitHub was created in November 2024 to consolidate useful code in a free and open source manner.
+
+The goals of our projects include:
+
+- good user interfaces
+- rapid prototyping and iteration
+- easy deployment (always local first)
+
+These goals are largely achieved through the use of simplicity, Python, and "AI".
+
+## views on "AI"
+
+Artificial intelligence ("AI") is a science fiction (and now popular culture) term that anamorphosizes the reality of computers. Reframing language models as string processors that operate in useful ways simplifies the dynamic drastically.
+
+> User:
+>
+> "I want the phrase: 'we often ____ AI as if it were human', what's the term?"
+>
+> ChatGPT:
+>
+> "The term you're looking for is 'anthropomorphize'.
+>
+> So the phrase would be:
+> 'We often anthropomorphize AI as if it were human.'"
+>
+
+
+Technology is good. I strongly prefer you send your code in a GitHub pull request from a computer rather than a fax of a print out from your typerwriter. In either case, if you can't vouch for the work you're publishing, you're doing it wrong.
+
+### language models and Python (and SQL)
+
+Abstractions: writing SQL is a lot nicer than punching cards. Working with high-level programming languages is typically a lot more productive than working with assembly, though there will always be a place for programming languages at all levels of abstraction. For working with data (and machine learning), Python is a great choice and the clear winner by popularity (with SQL).
+
+## views on simplicity
+
+Python (and SQL) are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems.
+
+## the Python tech stack
+
+Python is the user interface for programming at every level of the tech stack.
+
+For now, this includes:
+
+- [Typer](https://typer.tiangolo.com): CLI
+- [FastAPI](https://fastapi.tiangolo.com): web server + continuous data ingestion and ETL (cron jobs)
+- [Ibis](https://github.com/ibis-project/ibis): table management and queries
+    - [SQLite](https://github.com/sqlite/sqlite) and/or [Postgres](https://github.com/postgres/postgres): OLTP database
+    - [DuckDB](https://github.com/duckdb/duckdb): OLAP database (views on top of the OLTP tables)
+- [Quarto](https://github.com/quarto-dev/quarto): website (static)
+- [Shiny for Python](https://github.com/posit-dev/py-shiny): web app
+
+Meta-tools:
+
+- [uv](https://github.com/astral-sh/uv): Python management
+- [justfile](https://github.com/casey/just): task management
+- [Docker](https://github.com/docker/cli) and [Docker Compose](https://github.com/docker/compose): containerization
+
+Infrastructure:
+
+- [GitHub](https://github.com): code, CI/CD, etc.
+- TBD: cloud provider (currently using raspberry pis and GCP)

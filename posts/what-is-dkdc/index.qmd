@@ -1,0 +1,39 @@
+---
+title: "what is 'dkdc'?"
+author: "Cody"
+date: "2024-11-24"
+image: "../../logo.png"
+categories: [dkdc-io]
+---
+
+***A decade-long journey back home.***
+
+Nearly a decade ago, I started "DKDC LLC" not far from where I am today.
+
+## why "DKDC"?
+
+I didn't need to start a company, but I wanted to. I was working with a local company to prototype a device for testing in a hospital. Ostensibly a limited liability company (LLC) would limit my liability, but there was effectively no risk in my work. The real appeal was in learning the process and being able to say "I started a company".
+
+> "I started a company!"
+>
+> "Oh yeah? What's it called?"
+>
+> "DKDC LLC."
+>
+> "What does DKDC stand for?"
+>
+> "Don't know, don't care."
+
+## branding
+
+My full name is relatively common and I found "dkdc" to be a useful, unique suffix for online accounts. It's bland, neutral, and doesn't really mean anything. It was a good fit a decade ago for a company that didn't really do anything and it's been a good fit since for my usernames and personal branding since.
+
+::: {.callout-warning collapse="true"}
+"dkdc" is very difficult to understand over the phone.
+:::
+
+## starting "dkdc-io"
+
+> "reincarnated"
+
+As of publishing this post, "dkdc-io" is nothing more than an idea and a GitHub organization with some nascent code. It's intended as a bland, neutral, and unassuming home for useful code that can do things for me (and perhaps others). Software for me. A startup in a box. A decade of learnings?
