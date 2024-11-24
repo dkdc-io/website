@@ -10,25 +10,64 @@
 <atom:link href="https://dkdc.io/posts.xml" rel="self" type="application/rss+xml"/>
 <description>Code by Cody</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Sun, 01 Apr 0001 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 24 Nov 2024 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>testing</title>
+  <title>what is ‘dkdc’?</title>
   <dc:creator>Cody </dc:creator>
-  <link>https://dkdc.io/posts/testing/</link>
+  <link>https://dkdc.io/posts/what-is-dkdc/</link>
   <description><![CDATA[ 
 
 
 
 
-<p>Testing in soon-to-be-past.</p>
+<p><strong><em>A decade-long journey back home.</em></strong></p>
+<p>Nearly a decade ago, I started “DKDC LLC” not far from where I am today.</p>
+<section id="why-dkdc" class="level2">
+<h2 class="anchored" data-anchor-id="why-dkdc">why “DKDC”?</h2>
+<p>I didn’t need to start a company, but I wanted to. I was working with a local company to prototype a device for testing in a hospital. Ostensibly a limited liability company (LLC) would limit my liability, but there was effectively no risk in my work. The real appeal was in learning the process and being able to say “I started a company”.</p>
+<blockquote class="blockquote">
+<p>“I started a company!”</p>
+<p>“Oh yeah? What’s it called?”</p>
+<p>“DKDC LLC.”</p>
+<p>“What does DKDC stand for?”</p>
+<p>“Don’t know, don’t care.”</p>
+</blockquote>
+</section>
+<section id="branding" class="level2">
+<h2 class="anchored" data-anchor-id="branding">branding</h2>
+<p>My full name is relatively common and I found “dkdc” to be a useful, unique suffix for online accounts. It’s bland, neutral, and doesn’t really mean anything. It was a good fit a decade ago for a company that didn’t really do anything and it’s been a good fit since for my usernames and personal branding since.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>“dkdc” is very difficult to understand over the phone.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="starting-dkdc-io" class="level2">
+<h2 class="anchored" data-anchor-id="starting-dkdc-io">starting “dkdc-io”</h2>
+<blockquote class="blockquote">
+<p>“reincarnated”</p>
+</blockquote>
+<p>As of publishing this post, “dkdc-io” is nothing more than an idea and a GitHub organization with some nascent code. It’s intended as a bland, neutral, and unassuming home for useful code that can do things for me (and perhaps others). Software for me. A startup in a box. A decade of learnings?</p>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a> ]]></description>
-  <category>archive</category>
-  <guid>https://dkdc.io/posts/testing/</guid>
-  <pubDate>Sun, 01 Apr 0001 00:00:00 GMT</pubDate>
-  <media:content url="https://dkdc.io/posts/testing/404.png" medium="image" type="image/png" height="144" width="144"/>
+  <category>dkdc-io</category>
+  <guid>https://dkdc.io/posts/what-is-dkdc/</guid>
+  <pubDate>Sun, 24 Nov 2024 00:00:00 GMT</pubDate>
+  <media:content url="https://dkdc.io/logo.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>

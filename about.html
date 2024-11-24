@@ -70,6 +70,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <meta name="twitter:title" content="about – dkdc.io">
+<meta name="twitter:description" content="Code by Cody">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -137,21 +138,61 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="dkdc.io" class="level2">
-<h2 class="anchored" data-anchor-id="dkdc.io">dkdc.io</h2>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Website under construction.</p>
-</div>
-</div>
+<p><strong><em>Things built for people.</em></strong></p>
+<p>The dkdc-io organization on GitHub was created in November 2024 to consolidate useful code in a free and open source manner.</p>
+<p>The goals of our projects include:</p>
+<ul>
+<li>good user interfaces</li>
+<li>rapid prototyping and iteration</li>
+<li>easy deployment (always local first)</li>
+</ul>
+<p>These goals are largely achieved through the use of simplicity, Python, and “AI”.</p>
+<section id="views-on-ai" class="level2">
+<h2 class="anchored" data-anchor-id="views-on-ai">views on “AI”</h2>
+<p>Artificial intelligence (“AI”) is a science fiction (and now popular culture) term that anamorphosizes the reality of computers. Reframing language models as string processors that operate in useful ways simplifies the dynamic drastically.</p>
+<blockquote class="blockquote">
+<p>User:</p>
+<p>“I want the phrase: ‘we often ____ AI as if it were human’, what’s the term?”</p>
+<p>ChatGPT:</p>
+<p>“The term you’re looking for is ‘anthropomorphize’.</p>
+<p>So the phrase would be: ‘We often anthropomorphize AI as if it were human.’”</p>
+</blockquote>
+<p>Technology is good. I strongly prefer you send your code in a GitHub pull request from a computer rather than a fax of a print out from your typerwriter. In either case, if you can’t vouch for the work you’re publishing, you’re doing it wrong.</p>
+<section id="language-models-and-python-and-sql" class="level3">
+<h3 class="anchored" data-anchor-id="language-models-and-python-and-sql">language models and Python (and SQL)</h3>
+<p>Abstractions: writing SQL is a lot nicer than punching cards. Working with high-level programming languages is typically a lot more productive than working with assembly, though there will always be a place for programming languages at all levels of abstraction. For working with data (and machine learning), Python is a great choice and the clear winner by popularity (with SQL).</p>
+</section>
+</section>
+<section id="views-on-simplicity" class="level2">
+<h2 class="anchored" data-anchor-id="views-on-simplicity">views on simplicity</h2>
+<p>Python (and SQL) are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems.</p>
+</section>
+<section id="the-python-tech-stack" class="level2">
+<h2 class="anchored" data-anchor-id="the-python-tech-stack">the Python tech stack</h2>
+<p>Python is the user interface for programming at every level of the tech stack.</p>
+<p>For now, this includes:</p>
+<ul>
+<li><a href="https://typer.tiangolo.com">Typer</a>: CLI</li>
+<li><a href="https://fastapi.tiangolo.com">FastAPI</a>: web server + continuous data ingestion and ETL (cron jobs)</li>
+<li><a href="https://github.com/ibis-project/ibis">Ibis</a>: table management and queries
+<ul>
+<li><a href="https://github.com/sqlite/sqlite">SQLite</a> and/or <a href="https://github.com/postgres/postgres">Postgres</a>: OLTP database</li>
+<li><a href="https://github.com/duckdb/duckdb">DuckDB</a>: OLAP database (views on top of the OLTP tables)</li>
+</ul></li>
+<li><a href="https://github.com/quarto-dev/quarto">Quarto</a>: website (static)</li>
+<li><a href="https://github.com/posit-dev/py-shiny">Shiny for Python</a>: web app</li>
+</ul>
+<p>Meta-tools:</p>
+<ul>
+<li><a href="https://github.com/astral-sh/uv">uv</a>: Python management</li>
+<li><a href="https://github.com/casey/just">justfile</a>: task management</li>
+<li><a href="https://github.com/docker/cli">Docker</a> and <a href="https://github.com/docker/compose">Docker Compose</a>: containerization</li>
+</ul>
+<p>Infrastructure:</p>
+<ul>
+<li><a href="https://github.com">GitHub</a>: code, CI/CD, etc.</li>
+<li>TBD: cloud provider (currently using raspberry pis and GCP)</li>
+</ul>
 
 
 </section>

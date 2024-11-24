@@ -1,10 +1,31 @@
 [
   {
-    "objectID": "posts/testing/index.html",
-    "href": "posts/testing/index.html",
-    "title": "testing",
+    "objectID": "posts/what-is-dkdc/index.html",
+    "href": "posts/what-is-dkdc/index.html",
+    "title": "what is ‘dkdc’?",
     "section": "",
-    "text": "Testing in soon-to-be-past.\n\n\n\n Back to top"
+    "text": "A decade-long journey back home.\nNearly a decade ago, I started “DKDC LLC” not far from where I am today."
+  },
+  {
+    "objectID": "posts/what-is-dkdc/index.html#why-dkdc",
+    "href": "posts/what-is-dkdc/index.html#why-dkdc",
+    "title": "what is ‘dkdc’?",
+    "section": "why “DKDC”?",
+    "text": "why “DKDC”?\nI didn’t need to start a company, but I wanted to. I was working with a local company to prototype a device for testing in a hospital. Ostensibly a limited liability company (LLC) would limit my liability, but there was effectively no risk in my work. The real appeal was in learning the process and being able to say “I started a company”.\n\n“I started a company!”\n“Oh yeah? What’s it called?”\n“DKDC LLC.”\n“What does DKDC stand for?”\n“Don’t know, don’t care.”"
+  },
+  {
+    "objectID": "posts/what-is-dkdc/index.html#branding",
+    "href": "posts/what-is-dkdc/index.html#branding",
+    "title": "what is ‘dkdc’?",
+    "section": "branding",
+    "text": "branding\nMy full name is relatively common and I found “dkdc” to be a useful, unique suffix for online accounts. It’s bland, neutral, and doesn’t really mean anything. It was a good fit a decade ago for a company that didn’t really do anything and it’s been a good fit since for my usernames and personal branding since.\n\n\n\n\n\n\nWarning\n\n\n\n\n\n“dkdc” is very difficult to understand over the phone."
+  },
+  {
+    "objectID": "posts/what-is-dkdc/index.html#starting-dkdc-io",
+    "href": "posts/what-is-dkdc/index.html#starting-dkdc-io",
+    "title": "what is ‘dkdc’?",
+    "section": "starting “dkdc-io”",
+    "text": "starting “dkdc-io”\n\n“reincarnated”\n\nAs of publishing this post, “dkdc-io” is nothing more than an idea and a GitHub organization with some nascent code. It’s intended as a bland, neutral, and unassuming home for useful code that can do things for me (and perhaps others). Software for me. A startup in a box. A decade of learnings?"
   },
   {
     "objectID": "index.html",
@@ -18,21 +39,35 @@
     "href": "about.html",
     "title": "about",
     "section": "",
-    "text": "Warning\n\n\n\nWebsite under construction."
+    "text": "Things built for people.\nThe dkdc-io organization on GitHub was created in November 2024 to consolidate useful code in a free and open source manner.\nThe goals of our projects include:\nThese goals are largely achieved through the use of simplicity, Python, and “AI”."
   },
   {
-    "objectID": "about.html#dkdc.io",
-    "href": "about.html#dkdc.io",
+    "objectID": "about.html#views-on-ai",
+    "href": "about.html#views-on-ai",
     "title": "about",
-    "section": "",
-    "text": "Warning\n\n\n\nWebsite under construction."
+    "section": "views on “AI”",
+    "text": "views on “AI”\nArtificial intelligence (“AI”) is a science fiction (and now popular culture) term that anamorphosizes the reality of computers. Reframing language models as string processors that operate in useful ways simplifies the dynamic drastically.\n\nUser:\n“I want the phrase: ‘we often ____ AI as if it were human’, what’s the term?”\nChatGPT:\n“The term you’re looking for is ‘anthropomorphize’.\nSo the phrase would be: ‘We often anthropomorphize AI as if it were human.’”\n\nTechnology is good. I strongly prefer you send your code in a GitHub pull request from a computer rather than a fax of a print out from your typerwriter. In either case, if you can’t vouch for the work you’re publishing, you’re doing it wrong.\n\nlanguage models and Python (and SQL)\nAbstractions: writing SQL is a lot nicer than punching cards. Working with high-level programming languages is typically a lot more productive than working with assembly, though there will always be a place for programming languages at all levels of abstraction. For working with data (and machine learning), Python is a great choice and the clear winner by popularity (with SQL)."
+  },
+  {
+    "objectID": "about.html#views-on-simplicity",
+    "href": "about.html#views-on-simplicity",
+    "title": "about",
+    "section": "views on simplicity",
+    "text": "views on simplicity\nPython (and SQL) are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems."
+  },
+  {
+    "objectID": "about.html#the-python-tech-stack",
+    "href": "about.html#the-python-tech-stack",
+    "title": "about",
+    "section": "the Python tech stack",
+    "text": "the Python tech stack\nPython is the user interface for programming at every level of the tech stack.\nFor now, this includes:\n\nTyper: CLI\nFastAPI: web server + continuous data ingestion and ETL (cron jobs)\nIbis: table management and queries\n\nSQLite and/or Postgres: OLTP database\nDuckDB: OLAP database (views on top of the OLTP tables)\n\nQuarto: website (static)\nShiny for Python: web app\n\nMeta-tools:\n\nuv: Python management\njustfile: task management\nDocker and Docker Compose: containerization\n\nInfrastructure:\n\nGitHub: code, CI/CD, etc.\nTBD: cloud provider (currently using raspberry pis and GCP)"
   },
   {
     "objectID": "posts.html",
     "href": "posts.html",
     "title": "posts",
     "section": "",
-    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\ntesting\n\n\n\n\n\n\narchive\n\n\n\n\n\n\n\n\n\nApr 1, 1\n\n\nCody\n\n\n\n\n\n\nNo matching items\n\n Back to top"
+    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nwhat is ‘dkdc’?\n\n\n\n\n\n\ndkdc-io\n\n\n\n\n\n\n\n\n\nNov 24, 2024\n\n\nCody\n\n\n\n\n\n\nNo matching items\n\n Back to top"
   },
   {
     "objectID": "readme.html",
