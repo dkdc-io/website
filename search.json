@@ -53,7 +53,7 @@
     "href": "about.html#views-on-simplicity",
     "title": "about",
     "section": "views on simplicity",
-    "text": "views on simplicity\nPython (and SQL) are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems."
+    "text": "views on simplicity\nPython and SQL are arguably ubiquitous because of their simplicity. Both allow novice users to accomplish non-trivial work with minimal effort, while experienced professionals can use them to build complex systems."
   },
   {
     "objectID": "about.html#the-python-tech-stack",
