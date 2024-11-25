@@ -28,11 +28,18 @@
     "text": "starting “dkdc-io”\n\n“reincarnated”\n\nAs of publishing this post, “dkdc-io” is nothing more than an idea and a GitHub organization with some nascent code. It’s intended as a bland, neutral, and unassuming home for useful code that can do things for me (and perhaps others). Software for me. A startup in a box. A decade of learnings?"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "dkdc.io",
+    "objectID": "readme.html",
+    "href": "readme.html",
+    "title": "website",
     "section": "",
-    "text": "Code by Cody.\n\n\n\n\n\n\nWarning\n\n\n\nWebsite under construction. Apologies for the theme.\n\n\n\n\n Back to top"
+    "text": "website\nhttps://dkdc.io.\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "posts.html",
+    "href": "posts.html",
+    "title": "posts",
+    "section": "",
+    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nfast full-stack Python (uv & Docker)\n\n\n\n\n\n\npython\n\n\n\n\n\n\n\n\n\nNov 25, 2024\n\n\nCody\n\n\n\n\n\n\n\n\n\n\n\n\nlaunching ‘dkdc-io’\n\n\n\n\n\n\ndkdc-io\n\n\n\n\n\n\n\n\n\nNov 24, 2024\n\n\nCody\n\n\n\n\n\n\nNo matching items\n\n Back to top"
   },
   {
     "objectID": "about.html",
@@ -63,17 +70,17 @@
     "text": "the Python tech stack\nPython is the user interface for programming at every level of the tech stack.\nFor now, this includes:\n\nTyper: CLI\nFastAPI: web server + continuous data ingestion and ETL (cron jobs)\nIbis: table management and queries\n\nSQLite and/or Postgres: OLTP database\nDuckDB: OLAP database (views on top of the OLTP tables)\n\nQuarto: website (static)\nShiny for Python: web app\n\nMeta-tools:\n\nuv: Python management\njustfile: task management\nDocker and Docker Compose: containerization\n\nInfrastructure:\n\nGitHub: code, CI/CD, etc.\nTBD: cloud provider (currently using raspberry pis and GCP)"
   },
   {
-    "objectID": "posts.html",
-    "href": "posts.html",
-    "title": "posts",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "dkdc.io",
     "section": "",
-    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nlaunching ‘dkdc-io’\n\n\n\n\n\n\ndkdc-io\n\n\n\n\n\n\n\n\n\nNov 24, 2024\n\n\nCody\n\n\n\n\n\n\nNo matching items\n\n Back to top"
+    "text": "Code by Cody.\n\n\n\n\n\n\nWarning\n\n\n\nWebsite under construction. Apologies for the theme.\n\n\n\n\n Back to top"
   },
   {
-    "objectID": "readme.html",
-    "href": "readme.html",
-    "title": "website",
+    "objectID": "posts/fast-simple-python/index.html",
+    "href": "posts/fast-simple-python/index.html",
+    "title": "fast full-stack Python (uv & Docker)",
     "section": "",
-    "text": "website\nhttps://dkdc.io.\n\n\n\n\n Back to top"
+    "text": "Using uv and Docker to develop and deploy simple, scalable, full-stack Python applications.\n\nIn this post, we’ll look at my Dockerfile:\n# dkdc Dockerfile\nFROM ghcr.io/astral-sh/uv:latest AS uv\nFROM python:3.12-slim\n# set the environment variables\nENV PATH=/root/.local/bin:$PATH\n# set the working directory\nWORKDIR /app\n# copy the files\nCOPY readme.md /app/readme.md\nCOPY pyproject.toml /app/pyproject.toml\nCOPY src /app/src\n# install the Python packages\nRUN --mount=type=cache,target=/root/.cache/uv \\\n    --mount=from=uv,source=/uv,target=./uv \\\n    ./uv pip install '.' --system --upgrade\nI use it to develop simple, scalable, full-stack Python applications built with:\n\nTyper: CLI\nIbis: table management and queries\n\nSQLite and/or Postgres: OLTP database\nDuckDB: OLAP database (views on top of the OLTP tables)\n\nShiny for Python: GUI\n\nPlotly: plots\n\n\nThen, deploy them with ease (and minimal build times) locally, on a Raspberry Pi, and on a cloud VM. Of course, other open source software and Python packages are used along the way (and you can use whatever you like!).\nSome miscellaneous notes:\n\norder: the Dockefile is ordered so that frequently changing parts are toward the bottom\ncache: the big point is the caching line, which I stole from somewhere (here?)\nreadme.md: the pyproject.toml is needed as it defines the installation of the package (and CLI), and the readme.md is needed because it’s referenced in the pyproject.toml\nsrc: this is the source code, in something like src/my_package, and obviously needs to be copied\npinning verions: in general I’m not pinning (or using a uv lockfile), but I would obviously recommend doing so for production workloads and having a process for updating dependencies\nsystem installation: we use system Python instead of creating a Python virtual environment (which uv makes easy) because we’re already in a virtual container (often itself in a virtual machine)\n\nCombining this with a few justfile commands makes development and deployment very easy. The simplicity of Python and tools that cover the full stack (CLI, database, GUI) make it a great choice for rapidly prototyping scalable applications.\n\n\n\n Back to top"
   }
 ]

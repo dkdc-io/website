@@ -10,7 +10,66 @@
 <atom:link href="https://dkdc.io/posts.xml" rel="self" type="application/rss+xml"/>
 <description>Code by Cody</description>
 <generator>quarto-1.5.57</generator>
-<lastBuildDate>Sun, 24 Nov 2024 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 25 Nov 2024 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>fast full-stack Python (uv &amp; Docker)</title>
+  <dc:creator>Cody </dc:creator>
+  <link>https://dkdc.io/posts/fast-simple-python/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p><strong><em>Using uv and Docker to develop and deploy simple, scalable, full-stack Python applications.</em></strong></p>
+<hr>
+<p>In this post, we’ll look at my <a href="https://github.com/dkdc-io/dkdc/tree/main/Dockerfile">Dockerfile</a>:</p>
+<pre><code># dkdc Dockerfile
+FROM ghcr.io/astral-sh/uv:latest AS uv
+FROM python:3.12-slim
+# set the environment variables
+ENV PATH=/root/.local/bin:$PATH
+# set the working directory
+WORKDIR /app
+# copy the files
+COPY readme.md /app/readme.md
+COPY pyproject.toml /app/pyproject.toml
+COPY src /app/src
+# install the Python packages
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=from=uv,source=/uv,target=./uv \
+    ./uv pip install '.' --system --upgrade</code></pre>
+<p>I use it to develop simple, scalable, full-stack Python applications built with:</p>
+<ul>
+<li><a href="https://typer.tiangolo.com">Typer</a>: CLI</li>
+<li><a href="https://github.com/ibis-project/ibis">Ibis</a>: table management and queries
+<ul>
+<li><a href="https://github.com/sqlite/sqlite">SQLite</a> and/or <a href="https://github.com/postgres/postgres">Postgres</a>: OLTP database</li>
+<li><a href="https://github.com/duckdb/duckdb">DuckDB</a>: OLAP database (views on top of the OLTP tables)</li>
+</ul></li>
+<li><a href="https://github.com/posit-dev/py-shiny">Shiny for Python</a>: GUI
+<ul>
+<li><a href="https://github.com/plotly/plotly.py">Plotly</a>: plots</li>
+</ul></li>
+</ul>
+<p>Then, deploy them with ease (and minimal build times) locally, on a Raspberry Pi, and on a cloud VM. Of course, other open source software and Python packages are used along the way (and you can use whatever you like!).</p>
+<p>Some miscellaneous notes:</p>
+<ul>
+<li><strong>order</strong>: the Dockefile is ordered so that frequently changing parts are toward the bottom</li>
+<li><strong>cache</strong>: the big point is the caching line, which I stole from somewhere (<a href="https://github.com/astral-sh/uv/issues/4385">here?</a>)</li>
+<li><strong>readme.md</strong>: the <code>pyproject.toml</code> is needed as it defines the installation of the package (and CLI), and the <code>readme.md</code> is needed because it’s referenced in the <code>pyproject.toml</code></li>
+<li><strong>src</strong>: this is the source code, in something like <code>src/my_package</code>, and obviously needs to be copied</li>
+<li><strong>pinning verions</strong>: in general I’m not pinning (or using a <code>uv</code> lockfile), but I would obviously recommend doing so for production workloads and having a process for updating dependencies</li>
+<li><strong>system installation</strong>: we use system Python instead of creating a Python virtual environment (which uv makes easy) because we’re already in a virtual container (often itself in a virtual machine)</li>
+</ul>
+<p>Combining this with a few <code>justfile</code> commands makes development and deployment very easy. The simplicity of Python and tools that cover the full stack (CLI, database, GUI) make it a great choice for rapidly prototyping scalable applications.</p>
+
+
+
+<a onclick="window.scrollTo(0, 0); return false;" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a> ]]></description>
+  <category>python</category>
+  <guid>https://dkdc.io/posts/fast-simple-python/</guid>
+  <pubDate>Mon, 25 Nov 2024 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>launching ‘dkdc-io’</title>
   <dc:creator>Cody </dc:creator>
