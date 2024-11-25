@@ -1,5 +1,5 @@
 ---
-title: "fast full-stack Python (uv & Docker)"
+title: "fast, full-stack Python (uv & Docker)"
 author: "Cody"
 date: "2024-11-25"
 categories: 

@@ -1,0 +1,187 @@
+---
+title: "fast, simple, persistent state management with Python (Ibis)"
+author: "Cody"
+date: "2024-11-26"
+categories: 
+    - python
+---
+
+***Using SQLite and DuckDB (via Ibis) to manage perisistent state in Python.***
+
+## dkdc-state
+
+In this post, we'll look at the what and why of [dkdc-state](https://github.com/dkdc-io/dkdc-state):
+
+```{python}
+from dkdc_state import State, ibis
+
+ibis.options.interactive = True
+
+state = State()
+state._clear() # for demonstration purposes, clear all tables
+state
+```
+
+The State class itself isn't very interesting, but we extend it to implement a number of other stateful Python libraries. Looking at the source code:
+
+```{python}
+# | code-fold: true
+# | code-summary: "State class code code"
+from website.utils import get_class_source
+
+get_class_source(State)
+```
+
+We define a `__init__` method that calls a `_cons` method that sets up a write connection (SQLite) and read connection (DuckDB) with Ibis. A standard `_clear` method is defined to drop the tables (and corresponding views). That's it!
+
+To create a fast, simple, persistent state management system we simply need to extend the State class, implement the table creation in the `_cons` method, and add methods to interact with the state.
+
+### dkdc-todo
+
+Let's look at [dkdc-todo](https://github.com/dkdc-io/dkdc-todo) as an example:
+
+```{python}
+from dkdc_todo import Todo
+
+todo = Todo(dbpath="data.db")
+todo
+```
+
+We can view the table (and thus the schema):
+
+```{python}
+todo.t()
+```
+
+Then append items to the table:
+
+```{python}
+todo.append_todo(id="test", user_id=None, subject=None, body="do your homework")
+```
+
+At this point we see our record:
+
+```{python}
+todo.t()
+```
+
+Importantly, dkdc-state tables are intended to be append-only. Once `append_*` (confusingly named here) is called, you must use `update_*` to update the record (with the same id).
+
+To demonstrate this, let's update that record:
+
+```{python}
+todo.update_todo(id="test", user_id=None, subject=None, body="do your homework!")
+```
+
+Then view our table:
+
+```{python}
+todo.t()
+```
+
+There's only 1 row! The second rows is in there, the table code is just set to only show the latest version of each record.
+
+Let's look at the underlying table:
+
+```{python}
+todo.wcon.table(todo.todos_table_name)
+```
+
+And we see both rows. You can add other convenience methods to the state class as needed:
+
+```{python}
+todo.get_todo(id="test")
+```
+
+Taking a look at the source code:
+
+```{python}
+# | code-fold: true
+# | code-summary: "Todo class code code"
+
+get_class_source(Todo)
+```
+
+We have a simple, fast, performant todo list.
+
+### dkdc-lake
+
+Let's look at [dkdc-lake](https://github.com/dkdc-io/dkdc-lake) as another example:
+
+```{python}
+from dkdc_lake import Lake
+
+lake = Lake(dbpath="data.db")
+lake
+```
+
+We can again view the table/schema:
+
+```{python}
+lake.t()
+```
+
+And append a record (representing a file) into it:
+
+```{python}
+lake.append_file(
+    user_id=None,
+    path=None,
+    filename="test.txt",
+    filetype="txt",
+    data=b"hello world",
+)
+```
+
+Now, we see our record:
+
+```{python}
+lake.t()
+```
+
+And like before can update it:
+
+```{python}
+lake.update_file(
+    user_id=None,
+    path=None,
+    filename="test.txt",
+    filetype="txt",
+    data=b"hello world!",
+    version=None,
+    status=None,
+    description=None,
+    labels=None,
+)
+```
+
+Showing only one row:
+
+```{python}
+lake.t()
+```
+
+But again, there are two in the underlying SQLite table:
+
+```{python}
+lake.wcon.table(lake.lake_table_name)
+```
+
+Our view above is using a window function over `idx` (a timestamp) to take only the latest version of the record:
+
+```{python}
+# | code-fold: true
+# | code-summary: "Lake class code code"
+
+get_class_source(Lake)
+```
+
+## looking ahead
+
+I'm not *really* sure how well this works in practice at scale. I know I can process [a few billion rows on my laptop](https://ibis-project.org/posts/1tbc) with DuckDB, though that was on Parquet files and not views on top of SQLite tables. I'm not sure how well concurrent users writing to the same SQLite database will work. But it should be fine?
+
+::: {.callout-caution}
+This code is early and not the best. It will likely be improved over time. Check the respective repositories!
+:::
+
+Most importantly for dkdc-io, the user interface is simple and useful. The details can change behind the abstraction.

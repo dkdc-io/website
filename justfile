@@ -1,5 +1,8 @@
 # Justfile
 
+# aliases
+alias fmt:=format
+
 # list justfile recipes
 default:
     just --list
@@ -7,6 +10,17 @@ default:
 # open
 open:
     @open https://dkdc.io
+
+# python stuff
+setup:
+    @uv venv --python 3.12 --allow-existing
+    just install
+
+install:
+    @. .venv/bin/activate && uv pip install -e . --upgrade
+
+format:
+    @ruff format .
 
 # preview
 preview:

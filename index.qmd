@@ -13,7 +13,3 @@ about:
 ---
 
 ***Code by Cody***.
-
-::: {.callout-warning}
-Website under construction. Apologies for the theme.
-:::
