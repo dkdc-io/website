@@ -2,6 +2,7 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/fast-simple-state/index.html",
       "/posts/fast-simple-python/index.html",
       "/posts/what-is-dkdc/index.html"
     ]
