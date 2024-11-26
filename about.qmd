@@ -4,9 +4,9 @@ title: "about"
 
 ***Things built for people.***
 
-The dkdc-io organization on GitHub was created in November 2024 to consolidate useful code in a free and open source manner.
+The dkdc-io organization on GitHub was created in November 2024 to consolidate useful code in a free and open source manner. The priority is code components that can be composed to quickly develop and deploy scalable data applications.
 
-The goals of our projects include:
+The goals of the organization's projects include include:
 
 - good user interfaces
 - rapid prototyping and iteration
@@ -29,7 +29,7 @@ Artificial intelligence ("AI") is a science fiction (and now popular culture) te
 > So the phrase would be:
 > 'We often anthropomorphize AI as if it were human.'"
 
-Technology is good. I strongly prefer you send your code in a GitHub pull request from a computer rather than a fax of a print out from your typerwriter. In either case, if you can't vouch for the work you're publishing, you're doing it wrong.
+Technology is good. I strongly prefer you send your code in a GitHub pull request from a computer instead a fax of a print out from your typerwriter. In either case, if you can't vouch for the work you're publishing, you're doing it wrong.
 
 ### language models and Python (and SQL)
 
