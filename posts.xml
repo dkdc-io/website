@@ -9,7 +9,7 @@
 <link>https://dkdc.io/posts.html</link>
 <atom:link href="https://dkdc.io/posts.xml" rel="self" type="application/rss+xml"/>
 <description>Code by Cody</description>
-<generator>quarto-1.5.57</generator>
+<generator>quarto-1.6.37</generator>
 <lastBuildDate>Tue, 26 Nov 2024 00:00:00 GMT</lastBuildDate>
 <item>
   <title>fast, simple, persistent state management with Python (Ibis)</title>
@@ -881,8 +881,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 <ul>
 <li><strong>order</strong>: the Dockefile is ordered so that frequently changing parts are toward the bottom</li>
 <li><strong>cache</strong>: the big point is the caching line, which I stole from somewhere (<a href="https://github.com/astral-sh/uv/issues/4385">here?</a>)</li>
-<li><strong>readme.md</strong>: the <code>pyproject.toml</code> is needed as it defines the installation of the package (and CLI), and the <code>readme.md</code> is needed because it’s referenced in the <code>pyproject.toml</code></li>
-<li><strong>src</strong>: this is the source code, in something like <code>src/my_package</code>, and obviously needs to be copied</li>
+<li><strong>pyproject.toml</strong>: the <code>pyproject.toml</code> is needed as it defines the installation of the package (and CLI)</li>
+<li><strong>readme.md</strong>: the <code>readme.md</code> is needed because it’s referenced in the <code>pyproject.toml</code></li>
+<li><strong>src</strong>: this is the source code, in something like <code>src/my_package</code></li>
 <li><strong>pinning verions</strong>: in general I’m not pinning (or using a <code>uv</code> lockfile), but I would obviously recommend doing so for production workloads and having a process for updating dependencies</li>
 <li><strong>system installation</strong>: we use system Python instead of creating a Python virtual environment (which uv makes easy) because we’re already in a virtual container (often itself in a virtual machine)</li>
 </ul>
