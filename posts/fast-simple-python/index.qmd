@@ -45,8 +45,9 @@ Some miscellaneous notes:
 
 - **order**: the Dockefile is ordered so that frequently changing parts are toward the bottom
 - **cache**: the big point is the caching line, which I stole from somewhere ([here?](https://github.com/astral-sh/uv/issues/4385))
-- **readme.md**: the `pyproject.toml` is needed as it defines the installation of the package (and CLI), and the `readme.md` is needed because it's referenced in the `pyproject.toml`
-- **src**: this is the source code, in something like `src/my_package`, and obviously needs to be copied
+- **pyproject.toml**: the `pyproject.toml` is needed as it defines the installation of the package (and CLI)
+- **readme.md**: the `readme.md` is needed because it's referenced in the `pyproject.toml`
+- **src**: this is the source code, in something like `src/my_package`
 - **pinning verions**: in general I'm not pinning (or using a `uv` lockfile), but I would obviously recommend doing so for production workloads and having a process for updating dependencies
 - **system installation**: we use system Python instead of creating a Python virtual environment (which uv makes easy) because we're already in a virtual container (often itself in a virtual machine)
 
