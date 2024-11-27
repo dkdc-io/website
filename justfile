@@ -2,6 +2,7 @@
 
 # aliases
 alias fmt:=format
+alias render:=build
 
 # list justfile recipes
 default:
