@@ -12,7 +12,7 @@ categories:
 
 ---
 
-In this post, we'll look at storing SQLite databases in SQLite databases. Since a SQLite database is represented by a file on disk, we can simply store the bytes of that file in a blob column in another SQLite database.
+In this post, we'll look at storing SQLite databases in SQLite databases. Since a SQLite database is represented by a file on disk, we can simply store the bytes of that file in a binary blob in another SQLite database.
 
 We'll demonstrate this with Ibis [and some stateful dkdc-* tools](../fast-simple-state/index.qmd):
 
