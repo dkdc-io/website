@@ -4,8 +4,8 @@ author: "Cody"
 date: "2024-11-27"
 image: thumbnail.png
 categories: 
-    - Python
-    - Rust
+    - python
+    - rust
 ---
 
 ***A Python interface to core functionality written in Rust.***
