@@ -28,9 +28,13 @@ website:
     border: false
     center: "Code by Cody"
     right:
+
+
+      - icon: brilliance
+        href: https://dkdc.io/about
       - icon: github
         href: https://github.com/dkdc-io
-      - icon: twitter
+      - icon: body-text
         href: https://dkdc.io/posts
 
 # theme
