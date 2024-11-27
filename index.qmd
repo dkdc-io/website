@@ -4,10 +4,13 @@ about:
   template: jolla
   image: logo.png
   links:
+    - icon: brilliance
+      text: about
+      href: about.qmd
     - icon: github
       text: github
       href: https://github.com/dkdc-io
-    - icon: twitter
+    - icon: body-text
       text: posts
       href: posts.qmd
 ---
