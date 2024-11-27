@@ -160,7 +160,7 @@ We can reverse the process to re-hydrate the todo and lake databases:
 
 ```{python}
 for filename in t["filename"].to_pyarrow().to_pylist():
-    data = t[t["filename"] == filename]["data"].to_pyarrow().to_pylist()[0]
+    data = t.filter(t["filename"] == filename)["data"].to_pyarrow().to_pylist()[0]
     with open(filename, "wb") as f:
         f.write(data)
 ```
