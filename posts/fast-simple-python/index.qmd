@@ -4,6 +4,8 @@ author: "Cody"
 date: "2024-11-25"
 categories: 
     - python
+    - docker
+    - uv
 ---
 
 ***Using uv and Docker to develop and deploy simple, scalable, full-stack Python applications.***

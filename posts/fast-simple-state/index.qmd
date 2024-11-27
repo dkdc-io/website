@@ -4,6 +4,9 @@ author: "Cody"
 date: "2024-11-26"
 categories: 
     - python
+    - ibis
+    - sqlite
+    - duckdb
 ---
 
 ***Using SQLite and DuckDB (via Ibis) to manage perisistent state in Python.***
