@@ -2,7 +2,6 @@
 title: "launching 'dkdc-io'"
 author: "Cody"
 date: "2024-11-24"
-image: "../../logo.png"
 categories: [dkdc-io]
 ---
 

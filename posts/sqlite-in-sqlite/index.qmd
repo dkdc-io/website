@@ -1,0 +1,188 @@
+---
+title: "sqlite in sqlite"
+author: "Cody"
+date: "2024-11-28"
+categories:
+    - python
+    - ibis
+    - sqlite
+---
+
+***Storing SQLite databases in SQLite databases.***
+
+---
+
+In this post, we'll look at storing SQLite databases in SQLite databases. Since a SQLite database is represented by a file on disk, we can simply store the bytes of that file in a blob column in another SQLite database.
+
+We'll demonstrate this with Ibis [and some stateful packages we talked about beofre](../fast-simple-state/index.qmd):
+
+```{python}
+import os
+import ibis
+import ibis.expr.datatypes as dt
+
+from dkdc_util import now, uuid
+from dkdc_todo import Todo
+from dkdc_lake import Lake
+
+ibis.options.interactive = True
+```
+
+Let's define the schema of our meta-database:
+
+```{python}
+schema = ibis.schema(
+    {
+        "idx": dt.timestamp,
+        "filename": str,
+        "data": dt.binary,
+    }
+)
+schema
+```
+
+And create it:
+
+```{python}
+# for idempotency
+if os.path.exists("db.db"):
+    os.remove("db.db")
+
+dbs = ibis.sqlite.connect("db.db")
+dbs.create_table("dbs", schema=schema)
+dbs.list_tables()
+```
+
+The table is empty:
+
+```{python}
+t = dbs.table("dbs")
+t
+```
+
+## creating some example SQLite databases
+
+Let's use our previously demonstrated dkdc-todo and dkdc-lake packages to quickly create a couple SQLite databases with some tables in them:
+
+```{python}
+# for idempotency
+if os.path.exists("todo.db"):
+    os.remove("todo.db")
+
+todo = Todo(dbpath="todo.db")
+for i in range(10):
+    todo.append_todo(
+        id=uuid(),
+        user_id=None,
+        subject=f"subject {i}",
+        body=f"body {i}",
+    )
+```
+
+We can confirm there's some data:
+
+```{python}
+todo.t()
+```
+
+Repeat for the lake database:
+
+```{python}
+# for idempotency
+if os.path.exists("lake.db"):
+    os.remove("lake.db")
+
+lake = Lake(dbpath="lake.db")
+for i in range(10):
+    lake.append_file(
+        user_id=None,
+        path=None,
+        filename=f"file_{i}.txt",
+        filetype="txt",
+        data=b"hi",
+    )
+```
+
+And again confirm we have data:
+
+```{python}
+lake.t()
+```
+
+## file to database
+
+Let's check the current databases we have:
+
+```{python}
+!ls | grep .db
+```
+
+And define some functions to read a file into bytes and insert it into the meta-database:
+
+```{python}
+def file_to_bytes(filename: str) -> bytes:
+    with open(filename, "rb") as f:
+        return f.read()
+
+
+def insert_file_to_db(filename: str) -> None:
+    data = {
+        "idx": [now()],
+        "filename": [filename],
+        "data": [file_to_bytes(filename)],
+    }
+    dbs.insert("dbs", data)
+```
+
+We can run this over our todo and lake databases, removing the files after copying the data:
+
+```{python}
+for filename in ["todo.db", "lake.db"]:
+    insert_file_to_db(filename)
+    os.remove(filename)
+```
+
+And see that our meta-database now contains the data:
+
+```{python}
+t
+```
+
+We can also see that the original databases are gone:
+
+```{python}
+!ls | grep .db
+```
+
+## database to file
+
+We can reverse the process to re-hydrate the todo and lake databases:
+
+```{python}
+for filename in t["filename"].to_pyarrow().to_pylist():
+    data = t[t["filename"] == filename]["data"].to_pyarrow().to_pylist()[0]
+    with open(filename, "wb") as f:
+        f.write(data)
+```
+
+And confirm the data is back:
+
+```{python}
+!ls | grep .db
+```
+
+We can then re-hydrate our Python objects:
+
+```{python}
+todo = Todo(dbpath="todo.db")
+todo.t()
+```
+
+```{python}
+lake = Lake(dbpath="lake.db")
+lake.t()
+```
+
+## conclusion
+
+Is this useful? Maybe. Packaging data into a single file can be useful. You'd probably want to add compression, encryption, and various other things for production.
