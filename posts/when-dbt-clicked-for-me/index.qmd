@@ -1,7 +1,7 @@
 ---
 title: "when dbt clicked for me: novices and programming"
 author: "Cody"
-date: "2024-11-27"
+date: "2024-11-28"
 draft: true
 categories: 
     - python
