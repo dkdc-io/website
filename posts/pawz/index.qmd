@@ -1,5 +1,5 @@
 ---
-title: "Python + Rust: a simple tutorial"
+title: "python + rust"
 author: "Cody"
 date: "2024-11-27"
 image: thumbnail.png
