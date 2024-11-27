@@ -163,6 +163,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 class="title">fast, simple, persistent state management with Python (Ibis)</h1>
   <div class="quarto-categories">
     <div class="quarto-category">python</div>
+    <div class="quarto-category">ibis</div>
+    <div class="quarto-category">sqlite</div>
+    <div class="quarto-category">duckdb</div>
   </div>
   </div>
 
@@ -196,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dkdc-state" class="level2">
 <h2 class="anchored" data-anchor-id="dkdc-state">dkdc-state</h2>
 <p>In this post, we’ll look at the what and why of <a href="https://github.com/dkdc-io/dkdc-state">dkdc-state</a>:</p>
-<div id="32e264f3" class="cell" data-execution_count="1">
+<div id="459acbb8" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dkdc_state <span class="im">import</span> State, ibis</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ibis.options.interactive <span class="op">=</span> <span class="va">True</span></span>
@@ -205,11 +208,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>state._clear() <span class="co"># for demonstration purposes, clear all tables</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>&lt;dkdc_state.main.State at 0x107ed6ab0&gt;</code></pre>
+<pre><code>&lt;dkdc_state.main.State at 0x114ca6ff0&gt;</code></pre>
 </div>
 </div>
 <p>The State class itself isn’t very interesting, but we extend it to implement a number of other stateful Python libraries. Looking at the source code:</p>
-<div id="dcada059" class="cell" data-execution_count="2">
+<div id="2d5bdaf4" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>State class code code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> website.utils <span class="im">import</span> get_class_source</span>
@@ -267,17 +270,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dkdc-todo" class="level3">
 <h3 class="anchored" data-anchor-id="dkdc-todo">dkdc-todo</h3>
 <p>Let’s look at <a href="https://github.com/dkdc-io/dkdc-todo">dkdc-todo</a> as an example:</p>
-<div id="289c8dba" class="cell" data-execution_count="3">
+<div id="da2a6d31" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dkdc_todo <span class="im">import</span> Todo</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>todo <span class="op">=</span> Todo(dbpath<span class="op">=</span><span class="st">"data.db"</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>todo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>&lt;dkdc_todo.main.Todo at 0x11732a180&gt;</code></pre>
+<pre><code>&lt;dkdc_todo.main.Todo at 0x111911730&gt;</code></pre>
 </div>
 </div>
 <p>We can view the table (and thus the schema):</p>
-<div id="8a361e67" class="cell" data-execution_count="4">
+<div id="9ed5d6b5" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>todo.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
@@ -289,10 +292,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Then append items to the table:</p>
-<div id="7ae22ec6" class="cell" data-execution_count="5">
+<div id="05426f32" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>todo.append_todo(<span class="bu">id</span><span class="op">=</span><span class="st">"test"</span>, user_id<span class="op">=</span><span class="va">None</span>, subject<span class="op">=</span><span class="va">None</span>, body<span class="op">=</span><span class="st">"do your homework"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>{'idx': datetime.datetime(2024, 11, 25, 17, 8, 43, 385111),
+<pre><code>{'idx': datetime.datetime(2024, 11, 27, 18, 2, 45, 321529),
  'id': 'test',
  'user_id': None,
  'subject': None,
@@ -304,7 +307,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>At this point we see our record:</p>
-<div id="9cb58519" class="cell" data-execution_count="6">
+<div id="5db87a1b" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>todo.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -312,17 +315,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>           │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
 ├────────────────────────────┼────────┼─────────┼─────────┼──────────────────┼──────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.385111</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.321529</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴────────┴─────────┴─────────┴──────────────────┴──────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>Importantly, dkdc-state tables are intended to be append-only. Once <code>append_*</code> (confusingly named here) is called, you must use <code>update_*</code> to update the record (with the same id).</p>
 <p>To demonstrate this, let’s update that record:</p>
-<div id="f6f8ea45" class="cell" data-execution_count="7">
+<div id="72314236" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>todo.update_todo(<span class="bu">id</span><span class="op">=</span><span class="st">"test"</span>, user_id<span class="op">=</span><span class="va">None</span>, subject<span class="op">=</span><span class="va">None</span>, body<span class="op">=</span><span class="st">"do your homework!"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>{'idx': datetime.datetime(2024, 11, 25, 17, 8, 43, 436369),
+<pre><code>{'idx': datetime.datetime(2024, 11, 27, 18, 2, 45, 373844),
  'id': 'test',
  'user_id': None,
  'subject': None,
@@ -334,7 +337,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Then view our table:</p>
-<div id="662343ad" class="cell" data-execution_count="8">
+<div id="1921679f" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>todo.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -342,14 +345,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>            │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
 ├────────────────────────────┼────────┼─────────┼─────────┼───────────────────┼──────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.436369</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework!</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.373844</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework!</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴────────┴─────────┴─────────┴───────────────────┴──────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>There’s only 1 row! The second rows is in there, the table code is just set to only show the latest version of each record.</p>
 <p>Let’s look at the underlying table:</p>
-<div id="a24c29d9" class="cell" data-execution_count="9">
+<div id="3b426339" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>todo.wcon.table(todo.todos_table_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -357,17 +360,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp</span>                  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>            │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │
 ├────────────────────────────┼────────┼─────────┼─────────┼───────────────────┼──────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.385111</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework </span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.436369</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework!</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.321529</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework </span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.373844</span> │ <span style="color: #008000; text-decoration-color: #008000">test  </span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">do your homework!</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴────────┴─────────┴─────────┴───────────────────┴──────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>And we see both rows. You can add other convenience methods to the state class as needed:</p>
-<div id="980ac592" class="cell" data-execution_count="10">
+<div id="6e6db271" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>todo.get_todo(<span class="bu">id</span><span class="op">=</span><span class="st">"test"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
-<pre><code>{'idx': datetime.datetime(2024, 11, 25, 17, 8, 43, 436369),
+<pre><code>{'idx': datetime.datetime(2024, 11, 27, 18, 2, 45, 373844),
  'id': 'test',
  'user_id': None,
  'subject': None,
@@ -379,7 +382,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Taking a look at the source code:</p>
-<div id="6e7d6a54" class="cell" data-execution_count="11">
+<div id="fa7423fc" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Todo class code code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>get_class_source(Todo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -543,17 +546,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dkdc-lake" class="level3">
 <h3 class="anchored" data-anchor-id="dkdc-lake">dkdc-lake</h3>
 <p>Let’s look at <a href="https://github.com/dkdc-io/dkdc-lake">dkdc-lake</a> as another example:</p>
-<div id="2d7093bd" class="cell" data-execution_count="12">
+<div id="e1cae023" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dkdc_lake <span class="im">import</span> Lake</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>lake <span class="op">=</span> Lake(dbpath<span class="op">=</span><span class="st">"data.db"</span>)</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>lake</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
-<pre><code>&lt;dkdc_lake.main.Lake at 0x114296b70&gt;</code></pre>
+<pre><code>&lt;dkdc_lake.main.Lake at 0x122fdc1d0&gt;</code></pre>
 </div>
 </div>
 <p>We can again view the table/schema:</p>
-<div id="86e224d4" class="cell" data-execution_count="13">
+<div id="08f3dc86" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>lake.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
@@ -565,7 +568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>And append a record (representing a file) into it:</p>
-<div id="8c4cab60" class="cell" data-execution_count="14">
+<div id="64a2208f" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lake.append_file(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    user_id<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    path<span class="op">=</span><span class="va">None</span>,</span>
@@ -574,8 +577,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span><span class="st">b"hello world"</span>,</span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
-<pre><code>{'idx': datetime.datetime(2024, 11, 25, 17, 8, 43, 569924),
- 'id': '173255452356992-bc5e9fe6',
+<pre><code>{'idx': datetime.datetime(2024, 11, 27, 18, 2, 45, 505331),
+ 'id': '173273056550533-f0d929c0',
  'user_id': None,
  'path': None,
  'filename': 'test.txt',
@@ -588,7 +591,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Now, we see our record:</p>
-<div id="67ba9ad4" class="cell" data-execution_count="15">
+<div id="5644751f" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>lake.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -596,13 +599,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span>         │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
 ├────────────────────────────┼──────────────────────────┼─────────┼────────┼──────────┼──────────┼────────────────┼─────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.569924</span> │ <span style="color: #008000; text-decoration-color: #008000">173255452356992-bc5e9fe6</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.505331</span> │ <span style="color: #008000; text-decoration-color: #008000">173273056550533-f0d929c0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴──────────────────────────┴─────────┴────────┴──────────┴──────────┴────────────────┴─────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>And like before can update it:</p>
-<div id="e0c7d192" class="cell" data-execution_count="16">
+<div id="27fa7889" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>lake.update_file(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    user_id<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    path<span class="op">=</span><span class="va">None</span>,</span>
@@ -615,8 +618,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
-<pre><code>{'idx': datetime.datetime(2024, 11, 25, 17, 8, 43, 652484),
- 'id': '173255452356992-bc5e9fe6',
+<pre><code>{'idx': datetime.datetime(2024, 11, 27, 18, 2, 45, 586443),
+ 'id': '173273056550533-f0d929c0',
  'user_id': None,
  'path': None,
  'filename': 'test.txt',
@@ -629,7 +632,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Showing only one row:</p>
-<div id="645137f2" class="cell" data-execution_count="17">
+<div id="d6720fa5" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>lake.t()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -637,13 +640,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span>          │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
 ├────────────────────────────┼──────────────────────────┼─────────┼────────┼──────────┼──────────┼─────────────────┼─────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.652484</span> │ <span style="color: #008000; text-decoration-color: #008000">173255452356992-bc5e9fe6</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world!'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.586443</span> │ <span style="color: #008000; text-decoration-color: #008000">173273056550533-f0d929c0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world!'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴──────────────────────────┴─────────┴────────┴──────────┴──────────┴─────────────────┴─────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>But again, there are two in the underlying SQLite table:</p>
-<div id="fa6e6b70" class="cell" data-execution_count="18">
+<div id="e2e37190" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lake.wcon.table(lake.lake_table_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
@@ -651,14 +654,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
 │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp</span>                  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span>          │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │
 ├────────────────────────────┼──────────────────────────┼─────────┼────────┼──────────┼──────────┼─────────────────┼─────────┼────────┼─────────────┼────────┤
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.569924</span> │ <span style="color: #008000; text-decoration-color: #008000">173255452356992-bc5e9fe6</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
-│ <span style="color: #800080; text-decoration-color: #800080">2024-11-25 17:08:43.652484</span> │ <span style="color: #008000; text-decoration-color: #008000">173255452356992-bc5e9fe6</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world!'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.505331</span> │ <span style="color: #008000; text-decoration-color: #008000">173273056550533-f0d929c0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:02:45.586443</span> │ <span style="color: #008000; text-decoration-color: #008000">173273056550533-f0d929c0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">test.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hello world!'</span> │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
 └────────────────────────────┴──────────────────────────┴─────────┴────────┴──────────┴──────────┴─────────────────┴─────────┴────────┴─────────────┴────────┘
 </pre>
 </div>
 </div>
 <p>Our view above is using a window function over <code>idx</code> (a timestamp) to take only the latest version of the record:</p>
-<div id="4db07a51" class="cell" data-execution_count="19">
+<div id="131c4ade" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Lake class code code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>get_class_source(Lake)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
