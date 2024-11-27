@@ -10,7 +10,558 @@
 <atom:link href="https://dkdc.io/posts.xml" rel="self" type="application/rss+xml"/>
 <description>Code by Cody</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Wed, 27 Nov 2024 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 28 Nov 2024 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>sqlite in sqlite</title>
+  <dc:creator>Cody </dc:creator>
+  <link>https://dkdc.io/posts/sqlite-in-sqlite/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p><strong><em>Storing SQLite databases in SQLite databases.</em></strong></p>
+<hr>
+<p>In this post, we’ll look at storing SQLite databases in SQLite databases. Since a SQLite database is represented by a file on disk, we can simply store the bytes of that file in a blob column in another SQLite database.</p>
+<p>We’ll demonstrate this with Ibis <a href="../../posts/fast-simple-state/index.html">and some stateful packages we talked about beofre</a>:</p>
+<div id="1a06478e" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> os</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> ibis</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> ibis.expr.datatypes <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> dt</span>
+<span id="cb1-4"></span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dkdc_util <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> now, uuid</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dkdc_todo <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Todo</span>
+<span id="cb1-7"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dkdc_lake <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Lake</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">ibis.options.interactive <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span></span></code></pre></div>
+</div>
+<p>Let’s define the schema of our meta-database:</p>
+<div id="5351755e" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">schema <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ibis.schema(</span>
+<span id="cb2-2">    {</span>
+<span id="cb2-3">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"idx"</span>: dt.timestamp,</span>
+<span id="cb2-4">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filename"</span>: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb2-5">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: dt.binary,</span>
+<span id="cb2-6">    }</span>
+<span id="cb2-7">)</span>
+<span id="cb2-8">schema</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>ibis.Schema {
+  idx       timestamp
+  filename  string
+  data      binary
+}</code></pre>
+</div>
+</div>
+<p>And create it:</p>
+<div id="e29bdd2f" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for idempotency</span></span>
+<span id="cb4-2"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> os.path.exists(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"db.db"</span>):</span>
+<span id="cb4-3">    os.remove(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"db.db"</span>)</span>
+<span id="cb4-4"></span>
+<span id="cb4-5">dbs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ibis.sqlite.<span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">connect</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"db.db"</span>)</span>
+<span id="cb4-6">dbs.create_table(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dbs"</span>, schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>schema)</span>
+<span id="cb4-7">dbs.list_tables()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>['dbs']</code></pre>
+</div>
+</div>
+<p>The table is empty:</p>
+<div id="16347687" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dbs.table(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dbs"</span>)</span>
+<span id="cb6-2">t</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┓
+┃<span style="font-weight: bold"> idx       </span>┃<span style="font-weight: bold"> filename </span>┃<span style="font-weight: bold"> data   </span>┃
+┡━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span> │
+└───────────┴──────────┴────────┘
+</pre>
+</div>
+</div>
+<section id="creating-some-example-sqlite-databases" class="level2">
+<h2 class="anchored" data-anchor-id="creating-some-example-sqlite-databases">creating some example SQLite databases</h2>
+<p>Let’s use our previously demonstrated dkdc-todo and dkdc-lake packages to quickly create a couple SQLite databases with some tables in them:</p>
+<div id="6d0d092e" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for idempotency</span></span>
+<span id="cb7-2"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> os.path.exists(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"todo.db"</span>):</span>
+<span id="cb7-3">    os.remove(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"todo.db"</span>)</span>
+<span id="cb7-4"></span>
+<span id="cb7-5">todo <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Todo(dbpath<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"todo.db"</span>)</span>
+<span id="cb7-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>):</span>
+<span id="cb7-7">    todo.append_todo(</span>
+<span id="cb7-8">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>uuid(),</span>
+<span id="cb7-9">        user_id<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>,</span>
+<span id="cb7-10">        subject<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"subject </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-11">        body<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"body </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-12">    )</span></code></pre></div>
+</div>
+<p>We can confirm there’s some data:</p>
+<div id="005b0846" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1">todo.t()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
+┃<span style="font-weight: bold"> idx                        </span>┃<span style="font-weight: bold"> id                       </span>┃<span style="font-weight: bold"> user_id </span>┃<span style="font-weight: bold"> subject   </span>┃<span style="font-weight: bold"> body   </span>┃<span style="font-weight: bold"> priority </span>┃<span style="font-weight: bold"> status </span>┃<span style="font-weight: bold"> description </span>┃<span style="font-weight: bold"> labels </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
+├────────────────────────────┼──────────────────────────┼─────────┼───────────┼────────┼──────────┼────────┼─────────────┼────────┤
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.617724</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385161770-72ecce61</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 9</span> │ <span style="color: #008000; text-decoration-color: #008000">body 9</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.605448</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385160543-f775ecf5</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 8</span> │ <span style="color: #008000; text-decoration-color: #008000">body 8</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.592924</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385159290-ee34d926</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 7</span> │ <span style="color: #008000; text-decoration-color: #008000">body 7</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.580860</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385158084-a6ddcd0d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 6</span> │ <span style="color: #008000; text-decoration-color: #008000">body 6</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.568452</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385156843-c45e3ee7</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 5</span> │ <span style="color: #008000; text-decoration-color: #008000">body 5</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.556362</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385155634-01908052</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 4</span> │ <span style="color: #008000; text-decoration-color: #008000">body 4</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.543722</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385154369-2f7670a7</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 3</span> │ <span style="color: #008000; text-decoration-color: #008000">body 3</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.530518</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385153048-29b3d13f</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 2</span> │ <span style="color: #008000; text-decoration-color: #008000">body 2</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.517492</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385151746-4683503e</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 1</span> │ <span style="color: #008000; text-decoration-color: #008000">body 1</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.469951</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385146990-f9408b38</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 0</span> │ <span style="color: #008000; text-decoration-color: #008000">body 0</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+└────────────────────────────┴──────────────────────────┴─────────┴───────────┴────────┴──────────┴────────┴─────────────┴────────┘
+</pre>
+</div>
+</div>
+<p>Repeat for the lake database:</p>
+<div id="1480f80e" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># for idempotency</span></span>
+<span id="cb9-2"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> os.path.exists(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lake.db"</span>):</span>
+<span id="cb9-3">    os.remove(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lake.db"</span>)</span>
+<span id="cb9-4"></span>
+<span id="cb9-5">lake <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Lake(dbpath<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lake.db"</span>)</span>
+<span id="cb9-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>):</span>
+<span id="cb9-7">    lake.append_file(</span>
+<span id="cb9-8">        user_id<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>,</span>
+<span id="cb9-9">        path<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>,</span>
+<span id="cb9-10">        filename<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"file_</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.txt"</span>,</span>
+<span id="cb9-11">        filetype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"txt"</span>,</span>
+<span id="cb9-12">        data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b"hi"</span>,</span>
+<span id="cb9-13">    )</span></code></pre></div>
+</div>
+<p>And again confirm we have data:</p>
+<div id="b5abd9ab" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">lake.t()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
+┃<span style="font-weight: bold"> idx                        </span>┃<span style="font-weight: bold"> id                       </span>┃<span style="font-weight: bold"> user_id </span>┃<span style="font-weight: bold"> path   </span>┃<span style="font-weight: bold"> filename   </span>┃<span style="font-weight: bold"> filetype </span>┃<span style="font-weight: bold"> data   </span>┃<span style="font-weight: bold"> version </span>┃<span style="font-weight: bold"> status </span>┃<span style="font-weight: bold"> description </span>┃<span style="font-weight: bold"> labels </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>     │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
+├────────────────────────────┼──────────────────────────┼─────────┼────────┼────────────┼──────────┼────────┼─────────┼────────┼─────────────┼────────┤
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:32.024813</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385202481-83e12220</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_9.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.986459</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385198646-8a7e817d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_8.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.949413</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385194941-57d5d882</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_7.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.911401</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385191140-034e540d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_6.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.872661</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385187266-e54941f0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_5.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.834456</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385183445-6d9f0a04</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_4.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.797872</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385179787-c1807fa8</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_3.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.760860</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385176086-1077422b</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_2.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.724156</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385172415-cbd56a84</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_1.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.685001</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385168501-37129979</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_0.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+└────────────────────────────┴──────────────────────────┴─────────┴────────┴────────────┴──────────┴────────┴─────────┴────────┴─────────────┴────────┘
+</pre>
+</div>
+</div>
+</section>
+<section id="file-to-database" class="level2">
+<h2 class="anchored" data-anchor-id="file-to-database">file to database</h2>
+<p>Let’s check the current databases we have:</p>
+<div id="460cdf27" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>ls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> grep .db</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>db.db
+lake.db
+todo.db</code></pre>
+</div>
+</div>
+<p>And define some functions to read a file into bytes and insert it into the meta-database:</p>
+<div id="d3650232" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> file_to_bytes(filename: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bytes</span>:</span>
+<span id="cb13-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(filename, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rb"</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb13-3">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> f.read()</span>
+<span id="cb13-4"></span>
+<span id="cb13-5"></span>
+<span id="cb13-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> insert_file_to_db(filename: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb13-7">    data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb13-8">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"idx"</span>: [now()],</span>
+<span id="cb13-9">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filename"</span>: [filename],</span>
+<span id="cb13-10">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>: [file_to_bytes(filename)],</span>
+<span id="cb13-11">    }</span>
+<span id="cb13-12">    dbs.insert(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dbs"</span>, data)</span></code></pre></div>
+</div>
+<p>We can run this over our todo and lake databases, removing the files after copying the data:</p>
+<div id="9350bcd3" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> filename <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"todo.db"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lake.db"</span>]:</span>
+<span id="cb14-2">    insert_file_to_db(filename)</span>
+<span id="cb14-3">    os.remove(filename)</span></code></pre></div>
+</div>
+<p>And see that our meta-database now contains the data:</p>
+<div id="855a31eb" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1">t</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> idx                        </span>┃<span style="font-weight: bold"> filename </span>┃<span style="font-weight: bold"> data                                                                                                                                                                                                                                                                               </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp</span>                  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span>                                                                                                                                                                                                                                                                             │
+├────────────────────────────┼──────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:32.333649</span> │ <span style="color: #008000; text-decoration-color: #008000">todo.db </span> │ <span style="color: #008000; text-decoration-color: #008000">b'SQLite format 3\x00\x10\x00\x01\x01\x00@  \x00\x00\x00\x0b\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'</span>+<span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8112</span> │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:32.340137</span> │ <span style="color: #008000; text-decoration-color: #008000">lake.db </span> │ <span style="color: #008000; text-decoration-color: #008000">b'SQLite format 3\x00\x10\x00\x01\x01\x00@  \x00\x00\x00\x0b\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'</span>+<span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8112</span> │
+└────────────────────────────┴──────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</pre>
+</div>
+</div>
+<p>We can also see that the original databases are gone:</p>
+<div id="fad7f2ad" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>ls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> grep .db</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>db.db</code></pre>
+</div>
+</div>
+</section>
+<section id="database-to-file" class="level2">
+<h2 class="anchored" data-anchor-id="database-to-file">database to file</h2>
+<p>We can reverse the process to re-hydrate the todo and lake databases:</p>
+<div id="9cf3d570" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> filename <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> t[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filename"</span>].to_pyarrow().to_pylist():</span>
+<span id="cb18-2">    data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> t[t[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filename"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> filename][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>].to_pyarrow().to_pylist()[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb18-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(filename, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"wb"</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb18-4">        f.write(data)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/cody/repos/dkdc-io/dkdc/.venv/lib/python3.12/site-packages/ibis/expr/types/relations.py:685: FutureWarning:
+
+Selecting/filtering arbitrary expressions in `Table.__getitem__` is deprecated and will be removed in version 10.0. Please use `Table.select` or `Table.filter` instead.
+</code></pre>
+</div>
+</div>
+<p>And confirm the data is back:</p>
+<div id="2d68761c" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>ls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> grep .db</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>db.db
+lake.db
+todo.db</code></pre>
+</div>
+</div>
+<p>We can then re-hydrate our Python objects:</p>
+<div id="cdd5165f" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1">todo <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Todo(dbpath<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"todo.db"</span>)</span>
+<span id="cb22-2">todo.t()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
+┃<span style="font-weight: bold"> idx                        </span>┃<span style="font-weight: bold"> id                       </span>┃<span style="font-weight: bold"> user_id </span>┃<span style="font-weight: bold"> subject   </span>┃<span style="font-weight: bold"> body   </span>┃<span style="font-weight: bold"> priority </span>┃<span style="font-weight: bold"> status </span>┃<span style="font-weight: bold"> description </span>┃<span style="font-weight: bold"> labels </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
+├────────────────────────────┼──────────────────────────┼─────────┼───────────┼────────┼──────────┼────────┼─────────────┼────────┤
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.617724</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385161770-72ecce61</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 9</span> │ <span style="color: #008000; text-decoration-color: #008000">body 9</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.605448</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385160543-f775ecf5</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 8</span> │ <span style="color: #008000; text-decoration-color: #008000">body 8</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.592924</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385159290-ee34d926</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 7</span> │ <span style="color: #008000; text-decoration-color: #008000">body 7</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.580860</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385158084-a6ddcd0d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 6</span> │ <span style="color: #008000; text-decoration-color: #008000">body 6</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.568452</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385156843-c45e3ee7</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 5</span> │ <span style="color: #008000; text-decoration-color: #008000">body 5</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.556362</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385155634-01908052</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 4</span> │ <span style="color: #008000; text-decoration-color: #008000">body 4</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.543722</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385154369-2f7670a7</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 3</span> │ <span style="color: #008000; text-decoration-color: #008000">body 3</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.530518</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385153048-29b3d13f</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 2</span> │ <span style="color: #008000; text-decoration-color: #008000">body 2</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.517492</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385151746-4683503e</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 1</span> │ <span style="color: #008000; text-decoration-color: #008000">body 1</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.469951</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385146990-f9408b38</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #008000; text-decoration-color: #008000">subject 0</span> │ <span style="color: #008000; text-decoration-color: #008000">body 0</span> │      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">100</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+└────────────────────────────┴──────────────────────────┴─────────┴───────────┴────────┴──────────┴────────┴─────────────┴────────┘
+</pre>
+</div>
+</div>
+<div id="8febc559" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1">lake <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Lake(dbpath<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lake.db"</span>)</span>
+<span id="cb23-2">lake.t()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┓
+┃<span style="font-weight: bold"> idx                        </span>┃<span style="font-weight: bold"> id                       </span>┃<span style="font-weight: bold"> user_id </span>┃<span style="font-weight: bold"> path   </span>┃<span style="font-weight: bold"> filename   </span>┃<span style="font-weight: bold"> filetype </span>┃<span style="font-weight: bold"> data   </span>┃<span style="font-weight: bold"> version </span>┃<span style="font-weight: bold"> status </span>┃<span style="font-weight: bold"> description </span>┃<span style="font-weight: bold"> labels </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━┩
+│ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">timestamp(6)</span>               │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>                   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>  │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>     │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">binary</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">int64</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">string</span>      │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">array…</span> │
+├────────────────────────────┼──────────────────────────┼─────────┼────────┼────────────┼──────────┼────────┼─────────┼────────┼─────────────┼────────┤
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:32.024813</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385202481-83e12220</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_9.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.986459</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385198646-8a7e817d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_8.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.949413</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385194941-57d5d882</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_7.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.911401</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385191140-034e540d</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_6.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.872661</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385187266-e54941f0</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_5.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.834456</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385183445-6d9f0a04</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_4.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.797872</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385179787-c1807fa8</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_3.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.760860</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385176086-1077422b</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_2.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.724156</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385172415-cbd56a84</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_1.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+│ <span style="color: #800080; text-decoration-color: #800080">2024-11-27 18:57:31.685001</span> │ <span style="color: #008000; text-decoration-color: #008000">173273385168501-37129979</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>    │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #008000; text-decoration-color: #008000">file_0.txt</span> │ <span style="color: #008000; text-decoration-color: #008000">txt     </span> │ <span style="color: #008000; text-decoration-color: #008000">b'hi'</span>  │    <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span> │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>        │ <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">NULL</span>   │
+└────────────────────────────┴──────────────────────────┴─────────┴────────┴────────────┴──────────┴────────┴─────────┴────────┴─────────────┴────────┘
+</pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">conclusion</h2>
+<p>Is this useful? Maybe. Packaging data into a single file can be useful. You’d probably want to add compression, encryption, and various other things for production.</p>
+
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a> ]]></description>
+  <category>python</category>
+  <category>ibis</category>
+  <category>sqlite</category>
+  <guid>https://dkdc.io/posts/sqlite-in-sqlite/</guid>
+  <pubDate>Thu, 28 Nov 2024 00:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Python + Rust: a simple tutorial</title>
   <dc:creator>Cody </dc:creator>
@@ -2374,7 +2925,6 @@ Warning
   <category>dkdc-io</category>
   <guid>https://dkdc.io/posts/what-is-dkdc/</guid>
   <pubDate>Sun, 24 Nov 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://dkdc.io/logo.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>

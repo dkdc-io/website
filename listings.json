@@ -2,6 +2,7 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/sqlite-in-sqlite/index.html",
       "/posts/pawz/index.html",
       "/posts/fast-simple-state/index.html",
       "/posts/fast-simple-python/index.html",
