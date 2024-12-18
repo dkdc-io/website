@@ -1,39 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dkdc.io/posts/sqlite-in-sqlite/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.688Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dkdc.io/posts/fast-simple-state/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dkdc.io/posts/pawz/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dkdc.io/readme.html</loc>
-    <lastmod>2024-11-27T23:00:00.688Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dkdc.io/posts.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
-  </url>
-  <url>
-    <loc>https://dkdc.io/about.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
-  </url>
-  <url>
     <loc>https://dkdc.io/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
+    <lastmod>2024-12-18T16:43:00.207Z</lastmod>
   </url>
   <url>
     <loc>https://dkdc.io/posts/fast-simple-python/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.684Z</lastmod>
+    <lastmod>2024-12-18T16:43:00.209Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/posts/open-cli/index.html</loc>
+    <lastmod>2024-12-18T16:43:00.209Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/about.html</loc>
+    <lastmod>2024-12-18T16:43:00.207Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/posts.html</loc>
+    <lastmod>2024-12-18T16:43:00.208Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/readme.html</loc>
+    <lastmod>2024-12-18T16:43:00.212Z</lastmod>
   </url>
   <url>
     <loc>https://dkdc.io/posts/what-is-dkdc/index.html</loc>
-    <lastmod>2024-11-27T23:00:00.688Z</lastmod>
+    <lastmod>2024-12-18T16:43:00.212Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/posts/pawz/index.html</loc>
+    <lastmod>2024-12-18T16:43:00.209Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/posts/sqlite-in-sqlite/index.html</loc>
+    <lastmod>2024-12-18T16:43:00.212Z</lastmod>
+  </url>
+  <url>
+    <loc>https://dkdc.io/posts/fast-simple-state/index.html</loc>
+    <lastmod>2024-12-18T16:43:00.209Z</lastmod>
   </url>
 </urlset>
