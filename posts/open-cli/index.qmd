@@ -1,0 +1,172 @@
+---
+title: "dkdc open"
+author: "Cody"
+date: "2024-12-18"
+categories:
+    - python
+    - cli
+---
+
+***What I use my own CLI tool for.***
+
+---
+
+I like CLI tools and at some point decided to build my own. While [Go](https://github.com/lostmygithubaccount/sink) and [Rust](https://github.com/lostmygithubaccount/dkdc/pull/4) are great options for writing CLI tools, I [wind up switching back to Python](https://github.com/lostmygithubaccount/dkdc/pull/5) due to its simplicity and ease of use (especially for AI-assisted code).
+
+Regardless of the language, the repository my CLI code lives in, or where I'm working I consistently use one function nearly anytime I use my computer: `dkdc open`.
+
+## history
+
+I famously love Microsoft Edge as my web browser and famously hate having to sign into accounts to access content. I find managing bookmarks in a browser to be incredibly annoying, and trying to sync them across computers moreso. I could rant on.
+
+I wanted to be able to quickly open webpages or applications from a terminal and update the list of things I open frequently.
+
+## implementation
+
+I decided to use a `config.toml` that looks like this:
+
+```toml
+[open.aliases]
+i = "ibis"
+z = "zulip"
+s = "search"
+e = "email"
+c = "cal"
+d = "drive"
+g = "github"
+y = "youtube"
+gh = "github"
+ym = "youtubemusic"
+io = "dkdcio"
+key = "keyboard"
+read = "kindle"
+music = "youtubemusic"
+
+[open.things]
+# websites
+cal = "https://calendar.google.com"
+ibis = "https://ibis-project.org"
+dkdc = "https://dkdc.dev"
+dkdcio = "https://dkdc.io"
+chat = "https://chat.openai.com"
+drive = "https://drive.google.com"
+email = "https://mail.google.com"
+search = "https://google.com"
+github = "https://github.com"
+keyboard = "https://configure.zsa.io/moonlander"
+youtube = "https://youtube.com"
+youtubemusic = "https://music.youtube.com"
+
+kindle = "https://read.amazon.com"
+audible = "https://audible.com"
+
+##cloud
+md = "https://app.motherduck.com"
+gcp = "https://console.cloud.google.com"
+azure = "https://portal.azure.com"
+posit = "https://connect.posit.cloud"
+openai = "https://platform.openai.com/docs/overview"
+
+## apps
+edge = "/Applications/Microsoft Edge.app"
+zulip = "/Applications/Zulip.app"
+spotify = "/Applications/Spotify.app"
+```
+
+The `open.things` section defines all the things, and the `open.aliases` are corresponding aliases.
+
+The relevant code in the CLI is straightforward:
+
+```python
+@app.command()
+@app.command("o", hidden=True)
+def open(
+    thing: str = typer.Argument(None, help="thing to open"),
+):
+    """
+    open thing
+    """
+    import subprocess
+
+    from dkdc_util import get_config_toml
+
+    def open_it(thing: str) -> None:
+        """
+        open a thing
+        """
+        config = get_config_toml()
+
+        if thing in config["open"]["aliases"]:
+            thing = config["open"]["things"][config["open"]["aliases"][thing]]
+        elif thing in config["open"]["things"]:
+            thing = config["open"]["things"][thing]
+
+        print(f"opening {thing}...")
+        subprocess.call(["open", thing])
+
+    def list_things() -> None:
+        """
+        list things
+        """
+        config = get_config_toml()
+
+        aliases = []
+        things = []
+
+        for alias, thing in config["open"]["aliases"].items():
+            aliases.append((alias, thing))
+
+        for thing in config["open"]["things"]:
+            things.append((thing, config["open"]["things"][thing]))
+
+        aliases.sort(key=lambda x: (len(x[0]), x[0]))
+        things.sort(key=lambda x: (len(x[0]), x[0]))
+
+        alias_max = max([len(alias) for alias, _ in aliases])
+        thing_max = max([len(thing) for thing, _ in things])
+
+        to_print = "aliases:\n"
+        for alias, thing in aliases:
+            to_print += f"  - {alias.ljust(alias_max)} | {thing}\n"
+
+        to_print += "\n\nthings:\n"
+        for thing, path in things:
+            to_print += f"  - {thing.ljust(thing_max)} | {path}\n"
+
+        print(to_print)
+
+    if thing is None:
+        list_things()
+    else:
+        open_it(thing)
+```
+
+I can then use `dkdc open <thing|alias>` (or `dkdc o <thing|alias>`) to open things. If I don't provide a thing or alias, it will list all the things and aliases.
+
+## one more thing
+
+There's also a `dkdc config` (or `dkdc c`) command that will open the `config.toml` file in my editor. I use this to quickly update the list of things I open frequently.
+
+```python
+@app.command()
+@app.command("c", hidden=True)
+def config(
+    vim: bool = typer.Option(False, "--vim", "-v", help="open with (n)vim"),
+    env: bool = typer.Option(False, "--env", "-e", help="open .env file"),
+):
+    """
+    open config file
+    """
+    import os
+    import subprocess
+
+    from dkdc_util import get_dkdc_dir
+
+    program = "nvim" if vim else "code"
+    filename = ".env" if env else "config.toml"
+
+    filename = os.path.join(get_dkdc_dir(), filename)
+
+    print(f"opening {filename} with {program}...")
+    subprocess.call([program, f"{filename}"])
+```
