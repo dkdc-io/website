@@ -15,4 +15,4 @@ about:
       href: posts.qmd
 ---
 
-***Code by [Cody](https://dkdc.dev/about#me).***
+***[Code](https://github.com/dkdc-io) by [Cody](https://dkdc.dev/about#me).***

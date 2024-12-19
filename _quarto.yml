@@ -25,7 +25,7 @@ website:
   # footer
   page-footer:
     border: false
-    center: "Code by [Cody](https://dkdc.dev/about#me)."
+    center: "[Code](https://github.com/dkdc-io) by [Cody](https://dkdc.dev/about#me)."
     right:
       - icon: brilliance
         href: https://dkdc.io/about
